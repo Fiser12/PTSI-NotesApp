@@ -11,6 +11,8 @@ var config          = require('./parameters');
     models          = require('./models/user');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(express.static('public'));
+
 require('./passport')(passport);
 mongoose.connect(config.database, function(err) {
     if(err) throw err;
