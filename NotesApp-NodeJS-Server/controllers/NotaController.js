@@ -52,30 +52,25 @@ exports.notaCreate = function(req, res) {
                 return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
             } else {
                 try {
-                    var comprobar = false;
                     var nota = new Nota({
                         titulo: req.body.titulo,
-                        nota: req.body.nota,
+                        nota: ' '+req.body.nota,
                         location: req.body.location,
-                        favorito: req.body.favorito,
+                        favorito: 0,
                         created_at: Date.now(),
                         updated_at: Date.now(),
-                        etiquetas: req.body.etiquetas,
                         user: user._id
                     })
-                    req.body.etiquetas.forEach(function(etiqueta) {
-                        if(!comprobarEtiquetaExistente(etiqueta)){
-                            comprobar = true;
+                    nota.save(function (err, nota) {
+                        if (err){
+                            console.log("Titulo " + req.body.titulo);
+                            console.log("Notas " + req.body.nota);
+                            console.log("Location " + req.body.location);
+                            console.log("User " + user._id);
+                            return res.status(500).send(err.message);
                         }
+                        res.status(200).jsonp(nota);
                     });
-                    if(!comprobar) {
-                        nota.save(function (err, nota) {
-                            if (err) return res.status(500).send(err.message);
-                            res.status(200).jsonp(nota);
-                        });
-                    }else{
-                        return res.status(403).send({success: false, msg: 'One of the tags doesn\' exit.'});
-                    }
                 }
                 catch(err) {
                     return res.status(403).send({success: false, msg: 'Estructura no valida'});
@@ -180,8 +175,6 @@ exports.notaGet = function(req, res) {
                 return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
             } else {
                     Nota.findById(req.params.id, function (err, nota) {
-                        console.log(user.name);
-                        console.log(nota.usersLinked)
                         if(nota!=null&&(nota.user.equals(user._id)||nota.usersLinked.contains(user.name.toString()))) {
                             if (err) return res.send(500, err.message);
                             res.status(200).jsonp(nota);

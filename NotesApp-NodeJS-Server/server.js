@@ -12,9 +12,11 @@ var config          = require('./parameters');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
+var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
+    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
 
 require('./passport')(passport);
-mongoose.connect(config.database, function(err) {
+mongoose.connect(config.database, options, function(err) {
     if(err) throw err;
     else console.log('Connected to Database');
 });
@@ -28,9 +30,9 @@ var EtiquetaCtrl = require('./controllers/EtiquetaController');
 
 apiRoutes.post('/signup', UsersCtrl.signup);
 apiRoutes.post('/authenticate', UsersCtrl.authenticate);
-apiRoutes.get('/nota/list', passport.authenticate('jwt', { session: false}), NotaCtrl.notaList);
-apiRoutes.post('/nota/insert', passport.authenticate('jwt', { session: false}), NotaCtrl.notaCreate);
-apiRoutes.post('/nota/delete/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaRemove);
+apiRoutes.get('/nota', passport.authenticate('jwt', { session: false}), NotaCtrl.notaList);
+apiRoutes.post('/nota/create', passport.authenticate('jwt', { session: false}), NotaCtrl.notaCreate);
+apiRoutes.delete('/nota/delete/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaRemove);
 apiRoutes.put('/nota/update/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaUpdate);
 apiRoutes.get('/nota/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaGet);
 //---------------------------------------------------------------------------------------------
@@ -41,6 +43,7 @@ apiRoutes.put('/etiqueta/update/:id', passport.authenticate('jwt', { session: fa
 apiRoutes.get('/etiqueta/:id', passport.authenticate('jwt', { session: false}), EtiquetaCtrl.etiquetaGet);
 
 app.use('/api', apiRoutes);
+
 // Start server
 app.listen(port);
 module.exports = app;

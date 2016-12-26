@@ -20,7 +20,6 @@
   <link rel="stylesheet" href="app.css">
   <link rel="stylesheet" href="components/interfaz/bootstrap-tagsinput.css" />
   <script src="components/interfaz/bootstrap-tagsinput.js"></script>
-
 </head>
 <body ng-app="myApp" ng-controller="myControllerContent">
   <nav class="navbar navbar-default navbar-fixed-top navbar-offset" style="margin-bottom: 0">
@@ -54,32 +53,37 @@
     </div><!-- /#sidebar-wrapper -->
     <!-- Page Content -->
     <div id="page-content-wrapper">
-      <div class="col-xs-3 list-group left-column" style="overflow-y: scroll; height: 100%;  margin-bottom: 0px;">
-        <a href="#" class="list-group-item list-group-item-action" ng-repeat="nota in notas">
-          <h5 class="list-group-item-heading">{{nota.titulo}}</h5>
-          <p class="list-group-item-text">{{nota.created_at}}</p>
-        </a>
+      <div class="col-xs-3 list-group left-column" style="height: 100%;  margin-bottom: 0px; position: relative;" >
+        <div style="overflow-y: scroll; height: calc(100% - 50px);  margin-bottom: 0px;">
+          <a href="#" id="list{{nota._id}}" ng-click="getNota(nota._id)" class="list-group-item list-group-item-action" ng-repeat="nota in notas" ng-cloak>
+            <h5 class="list-group-item-heading">{{nota.titulo}}</h5>
+            <p class="list-group-item-text">{{nota.created_at}}</p>
+          </a>
+        </div>
+        <div class="btn-group" role="group" style="margin-top: 10px; position: absolute; bottom: 20px;">
+          <button type="button" class="btn btn-success" ng-click="crearNota()">Crear</button>
+        </div>
       </div>
       <div class="col-xs-9 right-column">
         <div class="input-group">
-          <input type="text" class="form-control" value="{{nota.titulo}}">
+          <input type="text" class="form-control" value="{{nota.titulo}}" ng-cloak>
           <div class="input-group-btn">
             <button class="btn btn-default glyphicon glyphicon-star" type="button"></button>
             <button class="btn btn-default glyphicon glyphicon-share" type="button"></button>
           </div>
         </div>
-        <textarea class="form-control">{{nota.nota}}</textarea>
+        <textarea class="form-control" ng-cloak>{{nota.nota}}</textarea>
         <form id="bootstrapTagsInputForm" method="post" class="form-horizontal" id="tagsForm" style="margin-top: 20px">
           <div class="form-group">
             <label class="col-xs-3 control-label">Etiquetas</label>
             <div class="col-xs-9">
-              <input type="text" name="tags" id="tagsInput" class="form-control" value="{{nota.etiquetas.toString()}}" data-role="tagsinput"/>
+              <input type="text" name="tags" id="tagsInput" class="form-control" value="" data-role="tagsinput"/>
             </div>
           </div>
         </form>
         <div class="btn-group" role="group" style="margin-top: 10px">
-          <button type="button" class="btn btn-danger">Borrar</button>
-          <button type="button" class="btn btn-default">Guardar</button>
+          <button type="button" class="btn btn-danger" ng-click="borrarNota(nota._id)">Borrar</button>
+          <button type="button" class="btn btn-default" ng-click="updateNota(nota._id)">Guardar</button>
         </div>
       </div>
     </div>
