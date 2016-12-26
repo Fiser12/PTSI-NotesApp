@@ -1,5 +1,4 @@
 /* app css stylesheet */
-
 .menu {
   list-style: none;
   border-bottom: 0.1em solid black;
@@ -26,4 +25,56 @@
 .iconMenu {
   margin-right: 2em;
   margin-left: -1em;
+}
+.input-group {
+  margin-bottom: 5mm;
+}
+#wrapper{
+  margin-top: 50px;
+}
+html, .row vertical-divider, #wrapper, #page-content-wrapper{
+  height: 100%;
+}
+#sidebar-wrapper, body {
+  height: calc(100% - 50px);
+}
+textarea.form-control{
+  height: calc(100% - 180px);
+}
+.right-column {
+  height: 100%;
+  text-align:right;
+  padding: 15px 15px 0px 15px;
+}
+.left-column{
+  height: 100%;
+  padding: 15px 15px 15px 15px;
+}
+@media(max-width:1500px) {
+  #page-content-wrapper{
+    height: calc(100% - 50px);
+  }
+  .right-column {
+    width: 50%;
+  }
+  .left-column {
+    width: 50%;
+  }
+}
+@media(max-width:600px) {
+  #page-content-wrapper{
+    height: calc(100% - 50px);
+  }
+  .right-column {
+    width: 100%;
+  }
+  .left-column {
+    display: none;
+  }
+}
+textarea {
+  resize: none;
+}
+.bootstrap-tagsinput {
+  width: 100%;
 }
