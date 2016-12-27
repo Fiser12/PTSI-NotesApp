@@ -64,9 +64,9 @@ exports.etiquetaCreate = function(req, res) {
                         nombre: req.body.nombre,
                         user: user._id,
                     })
-                    etiqueta.save(function(err, etiqueta) {
-                        if(err) return res.status(500).send( err.message);
-                        res.status(200).jsonp(etiqueta);
+                    etiqueta.save(function (err, etiqueta) {
+                        if (err) return res.status(500).send(err.message);
+                        res.status(200).send(etiqueta._id);
                     });
                 }
                 catch(err) {

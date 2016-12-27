@@ -31,6 +31,8 @@ var EtiquetaCtrl = require('./controllers/EtiquetaController');
 apiRoutes.post('/signup', UsersCtrl.signup);
 apiRoutes.post('/authenticate', UsersCtrl.authenticate);
 apiRoutes.get('/nota', passport.authenticate('jwt', { session: false}), NotaCtrl.notaList);
+apiRoutes.get('/nota/favoritas', passport.authenticate('jwt', { session: false}), NotaCtrl.notaListFav);
+apiRoutes.get('/nota/etiqueta/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaListEtiqueta);
 apiRoutes.post('/nota/create', passport.authenticate('jwt', { session: false}), NotaCtrl.notaCreate);
 apiRoutes.delete('/nota/delete/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaRemove);
 apiRoutes.put('/nota/update/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaUpdate);

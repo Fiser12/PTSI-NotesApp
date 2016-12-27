@@ -39,7 +39,50 @@ exports.notaList = function(req, res) {
     } else {
         return res.status(403).send({success: false, msg: 'No token provided.'});
     }
-}
+};
+exports.notaListFav = function(req, res) {
+    var token = getToken(req.headers);
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
+            } else {
+                Nota.find({ user: user._id, favorito: true }, function(err, notas) {
+                    if (err) return console.error(err);
+                    res.status(200).jsonp(notas);
+                });
+            }
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'No token provided.'});
+    }
+};
+exports.notaListEtiqueta = function(req, res) {
+    var token = getToken(req.headers);
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
+            } else {
+                Nota.find({ user: user._id, etiquetas: req.params.id }, function(err, notas) {
+                    if (err) return console.error(err);
+                    res.status(200).jsonp(notas);
+                });
+            }
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'No token provided.'});
+    }
+};
+
 exports.notaCreate = function(req, res) {
     var token = getToken(req.headers);
     if (token) {
@@ -60,13 +103,9 @@ exports.notaCreate = function(req, res) {
                         created_at: Date.now(),
                         updated_at: Date.now(),
                         user: user._id
-                    })
+                    });
                     nota.save(function (err, nota) {
                         if (err){
-                            console.log("Titulo " + req.body.titulo);
-                            console.log("Notas " + req.body.nota);
-                            console.log("Location " + req.body.location);
-                            console.log("User " + user._id);
                             return res.status(500).send(err.message);
                         }
                         res.status(200).jsonp(nota);
@@ -80,7 +119,7 @@ exports.notaCreate = function(req, res) {
     } else {
         return res.status(403).send({success: false, msg: 'No token provided.'});
     }
-}
+};
 exports.notaRemove = function(req, res) {
     var token = getToken(req.headers);
     if (token) {
@@ -108,7 +147,7 @@ exports.notaRemove = function(req, res) {
     } else {
         return res.status(403).send({success: false, msg: 'No token provided.'});
     }
-}
+};
 exports.notaUpdate = function(req, res) {
     var token = getToken(req.headers);
     if (token) {
@@ -122,7 +161,7 @@ exports.notaUpdate = function(req, res) {
             } else {
                 Nota.findById(req.params.id, function(err, nota) {
                     if(nota!=null&&(nota.user.equals(user._id)||nota.usersLinked.contains(user.name))) {
-                        var comprobar = true;
+                        var comprobarEti = true;
                         if(req.body.hasOwnProperty("titulo")) nota.titulo = req.body.titulo;
                         if(req.body.hasOwnProperty("nota")) nota.nota = req.body.nota;
                         if(req.body.hasOwnProperty("location")) nota.location = req.body.location;
@@ -130,21 +169,21 @@ exports.notaUpdate = function(req, res) {
                         if(req.body.hasOwnProperty("etiquetas")) {
                             req.body.etiquetas.forEach(function(etiqueta) {
                                 if(!comprobarEtiquetaExistente(etiqueta)){
-                                    comprobar = false;
+                                    comprobarEti = false;
                                 }
                             });
-                            if(!comprobar) nota.etiquetas = req.body.etiquetas;
+                            if(comprobarEti) nota.etiquetas = req.body.etiquetas;
                         }
-                        if(req.body.hasOwnProperty("usersLinked")) {
+                        /*if(req.body.hasOwnProperty("usersLinked")) {
                             req.body.usersLinked.forEach(function (users) {
                                 if(!comprobarUsuarioExistente(users)){
-                                    comprobar = false;
+                                   comprobar = false;
                                 }
                             })
                             if(!comprobar) nota.usersLinked = req.body.usersLinked;
-                        }
+                        }*/
                         nota.updated_at = Date.now();
-                        if(!comprobar){
+                        if(comprobarEti){
                             nota.save(function (err) {
                                 if (err) return res.status(500).send(err.message)
                                 PushServer.enviarNota(req.params.id, nota);
@@ -162,7 +201,7 @@ exports.notaUpdate = function(req, res) {
     } else {
         return res.status(403).send({success: false, msg: 'No token provided.'});
     }
-}
+};
 exports.notaGet = function(req, res) {
     var token = getToken(req.headers);
     if (token) {
@@ -187,18 +226,14 @@ exports.notaGet = function(req, res) {
     } else {
         return res.status(403).send({success: false, msg: 'No token provided.'});
     }
-}
+};
 function comprobarEtiquetaExistente(etiqueta) {
-    Etiqueta.findById(etiqueta, function () {
-        return true;
+    return Etiqueta.findById(etiqueta, function () {
     });
-    return false;
-}
+};
 function comprobarUsuarioExistente(user) {
-    User.find({ name: user }, function() {
-        return true;
+    return User.find({ name: user }, function() {
     });
-    return false;
 }
 Array.prototype.contains = function(element){
     return this.indexOf(element) > -1;
