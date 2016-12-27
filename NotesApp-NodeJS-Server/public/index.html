@@ -22,13 +22,12 @@
 </head>
 <body ng-app="myApp" ng-controller="myControllerContent">
   <nav class="navbar navbar-default navbar-fixed-top navbar-offset" style="margin-bottom: 0">
-    <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header fixed-brand">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
         <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
       </button>
       <a class="navbar-brand"> Notas</a>
-    </div><!-- navbar-header-->
+    </div>
   </nav>
   <div id="wrapper" style="overflow-y: hidden">
     <div id="sidebar-wrapper" style="overflow-y: hidden">
@@ -49,7 +48,7 @@
           </ul>
         </li>
       </ul>
-    </div><!-- /#sidebar-wrapper -->
+    </div>
     <!-- Page Content -->
     <div id="page-content-wrapper">
       <div class="col-xs-3 list-group left-column" style="height: 100%;  margin-bottom: 0px; position: relative;" >
@@ -68,7 +67,7 @@
           <input type="text" class="form-control" ng-model="nota.titulo" value="{{nota.titulo}}" ng-cloak>
           <div class="input-group-btn">
             <button class="{{nota.favorito ? 'btn btn-warning' : 'btn btn-default'}} glyphicon glyphicon-star" type="button" ng-click="cambiarFavorito(nota)"></button>
-            <button class="btn btn-default glyphicon glyphicon-share" type="button"></button>
+            <button class="btn btn-default glyphicon glyphicon-share" data-toggle="modal" data-target="#myModal" type="button"></button>
           </div>
         </div>
         <textarea ng-model="nota.nota" class="form-control" id="textAreaNota" ng-cloak>{{nota.nota}}</textarea>
@@ -87,6 +86,37 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Usuarios compartidos</h4>
+        </div>
+        <div class="modal-body">
+          <div class="list-group">
+            <a href="#" class="list-group-item clearfix" ng-repeat="usuario in nota.usersLinked" id="userList{{usuario}}" >
+              {{usuario}}
+              <span class="pull-right">
+                <button class="btn btn-xs btn-danger" ng-click="borrarUsuario(nota, usuario)"><span class="glyphicon glyphicon-trash"></span></button>
+              </span>
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">@</span>
+            <input type="text" id="inputUser" class="form-control" placeholder="Username" aria-describedby="basic-addon1" ng-model="userNew">
+            <div class="input-group-btn">
+              <button type="button" class="btn btn-default glyphicon glyphicon-plus" ng-click="anadirUsuario(nota, userNew)"></button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="components/version/version.js"></script>

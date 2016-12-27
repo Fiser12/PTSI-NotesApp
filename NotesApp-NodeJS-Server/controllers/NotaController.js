@@ -174,14 +174,7 @@ exports.notaUpdate = function(req, res) {
                             });
                             if(comprobarEti) nota.etiquetas = req.body.etiquetas;
                         }
-                        /*if(req.body.hasOwnProperty("usersLinked")) {
-                            req.body.usersLinked.forEach(function (users) {
-                                if(!comprobarUsuarioExistente(users)){
-                                   comprobar = false;
-                                }
-                            })
-                            if(!comprobar) nota.usersLinked = req.body.usersLinked;
-                        }*/
+                        if(req.body.hasOwnProperty("usersLinked")) nota.usersLinked = req.body.usersLinked;
                         nota.updated_at = Date.now();
                         if(comprobarEti){
                             nota.save(function (err) {
@@ -227,6 +220,30 @@ exports.notaGet = function(req, res) {
         return res.status(403).send({success: false, msg: 'No token provided.'});
     }
 };
+exports.existUser = function(req, res) {
+    var token = getToken(req.headers);
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
+            } else {
+                var encontrado = User.findOne({name: req.params.id});
+                if(encontrado&&user.name!=req.params.id)
+                    return res.status(200).send({success: true, msg: 'Existe'});
+                else
+                    return res.status(403).send({success: false, msg: 'No existe'});
+            }
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'No token provided.'});
+    }
+};
+
+
 function comprobarEtiquetaExistente(etiqueta) {
     return Etiqueta.findById(etiqueta, function () {
     });

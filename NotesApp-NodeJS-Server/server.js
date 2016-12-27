@@ -37,6 +37,7 @@ apiRoutes.post('/nota/create', passport.authenticate('jwt', { session: false}), 
 apiRoutes.delete('/nota/delete/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaRemove);
 apiRoutes.put('/nota/update/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaUpdate);
 apiRoutes.get('/nota/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaGet);
+apiRoutes.get('/user/exist/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.existUser);
 //---------------------------------------------------------------------------------------------
 apiRoutes.get('/etiqueta/list', passport.authenticate('jwt', { session: false}), EtiquetaCtrl.etiquetaList);
 apiRoutes.post('/etiqueta/insert', passport.authenticate('jwt', { session: false}), EtiquetaCtrl.etiquetaCreate);

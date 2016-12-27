@@ -1,6 +1,7 @@
 var token = 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1ODRkYzQ1NjFjY2Y2YzUwZTJlMzNhNjYiLCJuYW1lIjoiRmlzZXIiLCJwYXNzd29yZCI6IiQyYSQxMCRHUmFaTXNObm9pRk9nTjRRNWR1bTlPdXB2UTN6SUI1OVF3UGFiRWpDQy9kLnBYV0ROaUlvMiIsIl9fdiI6MH0.UbfxsNtSotBmO24SbR4ZxPbsgfvHQZHS4vgBYTHKQIk';
 var lastIdSelected = "NOTHING";
 var lastIdLateralSelected = "todasLasNotasButton";
+var lastEtiSelected = "";
 var etiquetas = null;
 
 if(!('contains' in String.prototype)) {
@@ -11,17 +12,32 @@ if(!('contains' in String.prototype)) {
 
 
 var myApp = angular.module('myApp',[]).controller("myControllerContent",function($scope, $http) {
-    $http.get('/api/etiqueta/list', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
-        $scope.etiquetas=data;
-        etiquetas = data;
-    }).error(function(data) {
-        console.log('Error: ' + data);
-    });
-    $http.get('/api/nota', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
-        $scope.notas = data;
-    }).error(function(data) {
-        console.log('Error: ' + data);
-    });
+    actualizarListaNotas = function($scope, $http){
+        var url = '/api/nota';
+        if(lastIdLateralSelected=="favoriteButton")
+            url = '/api/nota/favoritas';
+        else if(lastIdLateralSelected=="compartidasButton")
+            url = '/api/nota/compartidas';
+        else if(lastIdLateralSelected=="etiButton"+lastEtiSelected)
+            url = '/api/nota/etiqueta/'+lastEtiSelected;
+
+        $http.get(url, {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
+            $scope.notas = data;
+        }).error(function(data) {
+            console.log('Error: ' + data);
+        });
+    }
+    actualizarListaEtiquetas = function ($scope, $http) {
+        $http.get('/api/etiqueta/list', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
+            $scope.etiquetas=data;
+            etiquetas = data;
+        }).error(function(data) {
+            console.log('Error: ' + data);
+        });
+    }
+    $scope.userNew = "";
+    actualizarListaEtiquetas($scope, $http);
+    actualizarListaNotas($scope, $http);
     $scope.getNotas = function(){
         $("#"+lastIdLateralSelected).removeClass('active');
         $("#todasLasNotasButton").addClass('active');
@@ -46,6 +62,7 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
         $("#"+lastIdLateralSelected).removeClass('active');
         $("#etiButton"+id).addClass('active');
         lastIdLateralSelected = "etiButton"+id;
+        lastEtiSelected = id;
         $http.get('/api/nota/etiqueta/'+id, {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
             $scope.notas = data;
         }).error(function(data) {
@@ -109,31 +126,6 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
                 }
             });
     };
-    putNota= function(notaProcesada, nota, fav, etiquetasTemp, refrescarEtiquetas){
-        var req = {
-            method: 'PUT',
-            url: '/api/nota/update/'+nota._id,
-            headers: { 'Content-Type': 'application/json', 'Authorization': token },
-            data: '{"titulo": "'+nota.titulo+'","nota":"'+notaProcesada+'","location":"'+nota.location+'","favorito": '+fav+',"etiquetas": '+JSON.stringify(etiquetasTemp)+'}'
-        }
-        $http(req).then(function(){
-            $http.get('/api/nota', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
-                $scope.notas = data;
-            }).error(function(data) {
-                console.log('Error: ' + data);
-            });
-        })
-        if(refrescarEtiquetas)
-        {
-            $http.get('/api/etiqueta/list', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
-                $scope.etiquetas=data;
-                etiquetas = data;
-            }).error(function(data) {
-                console.log('Error: ' + data);
-            });
-        }
-
-    }
     $scope.crearNota = function () {
         var req = {
             method: 'POST',
@@ -143,15 +135,49 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
         }
         $http(req).then(function(data){
             $scope.nota = data;
-            $http.get('/api/nota', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
-                $scope.notas = data;
-            }).error(function(data) {
-                console.log('Error: ' + data);
-            });
+            actualizarListaNotas($scope, $http);
         })
     };
     $scope.cambiarFavorito = function (nota) {
         nota.favorito = !nota.favorito;
     };
-
+    $scope.anadirUsuario = function (nota, userNew) {
+        $http.get('/api/user/exist/'+userNew, {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
+            nota.usersLinked.push(userNew);
+        }).error(function(data) {
+            console.log('No existe');
+        });
+    };
+    $scope.borrarUsuario = function (nota, user) {
+        for (var i=nota.usersLinked.length-1; i>=0; i--) {
+            if (nota.usersLinked[i] === user) {
+                nota.usersLinked.splice(i, 1);
+                break;
+            }
+        }
+    };
+    putNota= function(notaProcesada, nota, fav, etiquetasTemp, refrescarEtiquetas){
+        var req = {
+            method: 'PUT',
+            url: '/api/nota/update/'+nota._id,
+            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+            data: '{"titulo": "'+nota.titulo+'","nota":"'+notaProcesada+'","location":"'+nota.location+'","favorito": '+fav+',"etiquetas": '+JSON.stringify(etiquetasTemp)+',"usersLinked": '+JSON.stringify(nota.usersLinked)+'}'
+        };
+        $http(req).then(function(){
+            $http.get('/api/nota', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
+                $scope.notas = data;
+            }).error(function(data) {
+                console.log('Error: ' + data);
+            });
+        });
+        if(refrescarEtiquetas)
+        {
+            $http.get('/api/etiqueta/list', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
+                $scope.etiquetas=data;
+                etiquetas = data;
+            }).error(function(data) {
+                console.log('Error: ' + data);
+            });
+        }
+    }
 });
