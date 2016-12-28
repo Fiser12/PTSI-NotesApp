@@ -33,13 +33,13 @@
   margin-bottom: 5mm;
 }
 #wrapper{
-  margin-top: 50px;
+  margin-top: 51px;
 }
 html, .row vertical-divider, #wrapper, #page-content-wrapper{
   height: 100%;
 }
 #sidebar-wrapper, body {
-  height: calc(100% - 50px);
+  height: calc(100% - 51px);
 }
 .right-column {
   height: 100%;
