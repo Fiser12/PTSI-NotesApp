@@ -20,6 +20,9 @@
 .menu > li {
   display: inline;
 }
+.onlySmarthPhone{
+  display: none;
+}
 
 .menu > li + li:before {
   content: "|";
@@ -52,7 +55,7 @@ html, .row vertical-divider, #wrapper, #page-content-wrapper{
 }
 @media(max-width:1500px) {
   #page-content-wrapper{
-    height: calc(100% - 50px);
+    height: calc(100% - 75px);
   }
   .right-column {
     width: 50%;
@@ -62,14 +65,25 @@ html, .row vertical-divider, #wrapper, #page-content-wrapper{
   }
 }
 @media(max-width:600px) {
+  .onlySmarthPhone{
+    display: block;
+  }
+
+  .column {
+    position: absolute;
+    left: 150%;
+    margin-left: -50%;
+  }
   #page-content-wrapper{
-    height: calc(100% - 50px);
+    position: absolute;
+    height: calc(100% - 75px);
   }
   .right-column {
     width: 100%;
   }
   .left-column {
-    display: none;
+    left: 50%;
+    width: 100%;
   }
 }
 textarea {

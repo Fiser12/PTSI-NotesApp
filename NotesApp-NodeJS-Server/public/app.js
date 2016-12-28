@@ -178,4 +178,34 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
             actualizarListaEtiquetas($scope, $http);
         }
     }
+    $('.clickIn').click(function() {
+        if( $(window).width() < 601) {
+            $('.left-column').animate({
+                left: '-50%'
+            }, 500, function () {
+                $(this).css('left', '150%');
+                $(this).appendTo('#page-content-wrapper');
+            });
+
+            $('.right-column').animate({
+                left: '50%'
+            }, 500);
+        }
+    });
+    $('.clickOut').click(function() {
+        if( $(window).width() < 601)
+        {
+            $('.right-column').animate({
+                left: '-50%'
+            }, 500, function() {
+                $(this).css('left', '150%');
+                $(this).appendTo('#page-content-wrapper');
+            });
+
+            $('.left-column').animate({
+                left: '50%'
+            }, 500);
+        }
+    });
+
 });
