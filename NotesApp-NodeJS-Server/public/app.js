@@ -1,4 +1,4 @@
-var token = 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1ODRkYzQ1NjFjY2Y2YzUwZTJlMzNhNjYiLCJuYW1lIjoiRmlzZXIiLCJwYXNzd29yZCI6IiQyYSQxMCRHUmFaTXNObm9pRk9nTjRRNWR1bTlPdXB2UTN6SUI1OVF3UGFiRWpDQy9kLnBYV0ROaUlvMiIsIl9fdiI6MH0.UbfxsNtSotBmO24SbR4ZxPbsgfvHQZHS4vgBYTHKQIk';
+var token = '';
 var lastIdSelected = "NOTHING";
 var lastIdLateralSelected = "todasLasNotasButton";
 var lastEtiSelected = "";
@@ -6,17 +6,13 @@ var etiquetas = null;
 var simplemde = new SimpleMDE({
     element: document.getElementById("textAreaNota"),
     autofocus: false,
-    hideIcons: ["guide", "fullscreen", "side-by-side"],
-
+    hideIcons: ["guide", "fullscreen", "side-by-side"]
 });
-
 if(!('contains' in String.prototype)) {
     String.prototype.contains = function(str, startIndex) {
         return -1 !== String.prototype.indexOf.call(this, str, startIndex);
     };
 }
-
-
 var myApp = angular.module('myApp',[]).controller("myControllerContent",function($scope, $http) {
     actualizarListaNotas = function($scope, $http){
         var url = '/api/nota';
@@ -32,7 +28,7 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
         }).error(function(data) {
             console.log('Error: ' + data);
         });
-    }
+    };
     actualizarListaEtiquetas = function ($scope, $http) {
         $http.get('/api/etiqueta/list', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
             $scope.etiquetas=data;
@@ -40,10 +36,35 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
         }).error(function(data) {
             console.log('Error: ' + data);
         });
-    }
+    };
     $scope.userNew = "";
-    actualizarListaEtiquetas($scope, $http);
-    actualizarListaNotas($scope, $http);
+    $scope.logout = function(){
+        token = "";
+        $scope.etiquetas = null;
+        $scope.notas = null;
+        $scope.nota = null;
+        etiquetas = null;
+        $('#login-modal').modal('show');
+    };
+    $scope.login = function (nombreUser, contrasena) {
+        $http.post('/api/authenticate', {"name": nombreUser,"password":contrasena}, {headers: { 'Content-Type': 'application/json'}}).success(function(data) {
+            token = data.toString();
+            actualizarListaEtiquetas($scope, $http);
+            actualizarListaNotas($scope, $http);
+            $('#login-modal').modal('hide');
+            document.getElementById("logoutButton").style.display = "block";
+            document.getElementById("loginButton").style.display = "none";
+        }).error(function(data) {
+            alert("Error en usuario o contraseña")
+        });
+    };
+    $scope.registro = function(nombreUser, contrasena) {
+        $http.post('/api/signup', {"name": nombreUser,"password":contrasena}, {headers: { 'Content-Type': 'application/json'}}).success(function(data) {
+            alert("Registrado")
+        }).error(function(data) {
+            alert("Error usuario ya existe")
+        });
+    };
     $scope.getNotas = function(){
         $("#"+lastIdLateralSelected).removeClass('active');
         $("#todasLasNotasButton").addClass('active');
@@ -207,5 +228,5 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
             }, 500);
         }
     });
-
 });
+$('#login-modal').modal('show');

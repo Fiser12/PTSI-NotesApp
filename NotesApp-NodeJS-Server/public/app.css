@@ -35,9 +35,21 @@
 .input-group {
   margin-bottom: 5mm;
 }
+#login {
+  float: right!important;
+  position:relative!important;
+  display: block!important;
+}
 #wrapper{
   margin-top: 51px;
 }
+#logout_sidebar_button {
+  position: absolute;
+  display: inline-block;
+  bottom: 0;
+  left: 15px;
+}
+
 html, .row vertical-divider, #wrapper, #page-content-wrapper{
   height: 100%;
 }

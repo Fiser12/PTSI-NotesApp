@@ -15,9 +15,9 @@ exports.signup = function(req, res) {
         });
         newUser.save(function(err) {
             if (err) {
-                return res.json({success: false, msg: 'Username already exists.'});
+                return res.status(403).json({success: false, msg: 'Username already exists.'});
             }
-            res.json({success: true, msg: 'Successful created new user.'});
+            res.status(200).json({success: true, msg: 'Successful created new user.'});
         });
     }
 };
@@ -33,10 +33,9 @@ exports.authenticate = function(req, res) {
             user.comparePassword(req.body.password, function (err, isMatch) {
                 if (isMatch && !err) {
                     var token = jwt.encode(user, config.secret);
-                    res.json({success: true, token: 'JWT ' + token});
-
+                    res.status(200).send('JWT ' + token);
                 } else {
-                    res.send({success: false, msg: 'Authentication failed. Wrong password.'});
+                    res.status(403).send({success: false, msg: 'Authentication failed. Wrong password.'});
                 }
             });
         }
