@@ -243,15 +243,10 @@ exports.existUser = function(req, res) {
     }
 };
 
-
 function comprobarEtiquetaExistente(etiqueta) {
     return Etiqueta.findById(etiqueta, function () {
     });
 };
-function comprobarUsuarioExistente(user) {
-    return User.find({ name: user }, function() {
-    });
-}
 Array.prototype.contains = function(element){
     return this.indexOf(element) > -1;
 };

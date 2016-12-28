@@ -41,12 +41,9 @@ html, .row vertical-divider, #wrapper, #page-content-wrapper{
 #sidebar-wrapper, body {
   height: calc(100% - 50px);
 }
-textarea.form-control{
-  height: calc(100% - 180px);
-}
 .right-column {
   height: 100%;
-  text-align:right;
+  text-align:left;
   padding: 15px 15px 0px 15px;
 }
 .left-column{
@@ -80,4 +77,10 @@ textarea {
 }
 .bootstrap-tagsinput {
   width: 100%;
+}
+.cm-spell-error{
+  background-color: transparent;
+}
+.CodeMirror {
+  height: calc(100% - 280px);
 }

@@ -17,8 +17,11 @@
   <link href="components/interfaz/simple-sidebar.css" rel="stylesheet">
   <link href="components/interfaz/font-awesome.min.css" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <link rel="stylesheet" href="app.css">
   <link rel="stylesheet" href="components/interfaz/bootstrap-tagsinput.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+  <link rel="stylesheet" href="components/markdown/simplemde.css">
+  <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+  <link rel="stylesheet" href="app.css">
 </head>
 <body ng-app="myApp" ng-controller="myControllerContent">
   <nav class="navbar navbar-default navbar-fixed-top navbar-offset" style="margin-bottom: 0">
@@ -40,6 +43,9 @@
         </li>
         <li id="compartidasButton">
           <a><span class="glyphicon glyphicon-share iconMenu"></span>Compartidas</a>
+        </li>
+        <li id="compartidasMeButton">
+          <a><span class="glyphicon glyphicon-arrow-down iconMenu"></span>Me han compartido</a>
         </li>
         <li>
           <a href="#"><span class="glyphicon glyphicon-tags iconMenu"></span>Etiquetas</a>
@@ -70,7 +76,7 @@
             <button class="btn btn-default glyphicon glyphicon-share" data-toggle="modal" data-target="#myModal" type="button"></button>
           </div>
         </div>
-        <textarea ng-model="nota.nota" class="form-control" id="textAreaNota" ng-cloak>{{nota.nota}}</textarea>
+        <textarea class="form-control" id="textAreaNota" ng-cloak></textarea>
         <form id="bootstrapTagsInputForm" method="post" class="form-horizontal" style="margin-top: 20px">
           <div class="form-group">
             <label class="col-xs-3 control-label">Etiquetas</label>
@@ -79,7 +85,7 @@
             </div>
           </div>
         </form>
-        <div class="btn-group" role="group" style="margin-top: 10px">
+        <div class="btn-group" role="group" style="margin-top: 10px; float: right;">
           <button type="button" class="btn btn-danger" ng-click="borrarNota(nota._id)">Borrar</button>
           <button type="button" class="btn btn-default" ng-click="updateNota(nota)">Guardar</button>
         </div>
@@ -116,7 +122,6 @@
       </div>
     </div>
   </div>
-
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="components/version/version.js"></script>

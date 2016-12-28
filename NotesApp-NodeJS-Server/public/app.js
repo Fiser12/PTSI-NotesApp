@@ -3,6 +3,12 @@ var lastIdSelected = "NOTHING";
 var lastIdLateralSelected = "todasLasNotasButton";
 var lastEtiSelected = "";
 var etiquetas = null;
+var simplemde = new SimpleMDE({
+    element: document.getElementById("textAreaNota"),
+    autofocus: false,
+    hideIcons: ["guide", "fullscreen", "side-by-side"],
+
+});
 
 if(!('contains' in String.prototype)) {
     String.prototype.contains = function(str, startIndex) {
@@ -77,6 +83,7 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
 
         $http.get('/api/nota/'+id, {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
             $scope.nota = data;
+            simplemde.value(data.nota);
             $('#tagsInput').tagsinput('removeAll');
             data.etiquetas.forEach(function (etiqueta) {
                 var result = etiquetas.filter(function( obj ) {
@@ -102,7 +109,7 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
         var fav = 0;
         if(nota.favorito)
             fav = 1;
-        var notaProcesada = nota.nota.replace(/\r?\n/g, '\\r\\n');
+        var notaProcesada = simplemde.value().replace(/\r?\n/g, '\\r\\n');
         var etiquetasTemp = [];
             $("#tagsInput").tagsinput('items').toString().split(",").forEach(function(etiqueta2){
                 var encontrado = false;
@@ -164,20 +171,11 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
             data: '{"titulo": "'+nota.titulo+'","nota":"'+notaProcesada+'","location":"'+nota.location+'","favorito": '+fav+',"etiquetas": '+JSON.stringify(etiquetasTemp)+',"usersLinked": '+JSON.stringify(nota.usersLinked)+'}'
         };
         $http(req).then(function(){
-            $http.get('/api/nota', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
-                $scope.notas = data;
-            }).error(function(data) {
-                console.log('Error: ' + data);
-            });
+            actualizarListaNotas($scope, $http);
         });
         if(refrescarEtiquetas)
         {
-            $http.get('/api/etiqueta/list', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
-                $scope.etiquetas=data;
-                etiquetas = data;
-            }).error(function(data) {
-                console.log('Error: ' + data);
-            });
+            actualizarListaEtiquetas($scope, $http);
         }
     }
 });
