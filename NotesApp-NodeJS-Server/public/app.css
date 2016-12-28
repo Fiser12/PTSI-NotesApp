@@ -40,7 +40,9 @@
   position:relative!important;
   display: block!important;
 }
+
 #wrapper{
+  width: 100%;
   margin-top: 51px;
 }
 #logout_sidebar_button {
@@ -80,7 +82,12 @@ html, .row vertical-divider, #wrapper, #page-content-wrapper{
   .onlySmarthPhone{
     display: block;
   }
-
+  #myModal{
+    width: 100%;
+  }
+  #login-modal{
+    width: 100%;
+  }
   .column {
     position: absolute;
     left: 150%;

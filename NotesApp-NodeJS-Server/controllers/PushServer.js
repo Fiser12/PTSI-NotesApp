@@ -12,9 +12,9 @@ var pusher = new Pusher({
 });
 
 exports.enviarNota = function (token, nota) {
-    pusher.trigger(token, 'notaUpdate', {
-        "nota": nota
-    });
+    pusher.trigger(token, 'notaUpdate',
+        nota
+    );
 }
 exports.borrarNota = function (token, id) {
     pusher.trigger(token, 'notaDelete', {

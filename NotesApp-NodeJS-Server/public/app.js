@@ -20,9 +20,10 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
             url = '/api/nota/favoritas';
         else if(lastIdLateralSelected=="compartidasButton")
             url = '/api/nota/compartidas';
+        else if(lastIdLateralSelected=="compartidasMeButton")
+            url = '/api/nota/compartidasMe';
         else if(lastIdLateralSelected=="etiButton"+lastEtiSelected)
             url = '/api/nota/etiqueta/'+lastEtiSelected;
-
         $http.get(url, {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
             $scope.notas = data;
         }).error(function(data) {
@@ -71,7 +72,7 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
         lastIdLateralSelected = "todasLasNotasButton";
         $http.get('/api/nota', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
             $scope.notas = data;
-        }).error(function(data) {
+         }).error(function(data) {
             console.log('Error: ' + data);
         });
     };
@@ -85,6 +86,27 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
             console.log('Error: ' + data);
         });
     };
+    $scope.getNotasCompartidas = function(){
+        $("#"+lastIdLateralSelected).removeClass('active');
+        $("#compartidasButton").addClass('active');
+        lastIdLateralSelected = "compartidasButton";
+        $http.get('/api/nota/compartidas', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
+            $scope.notas = data;
+        }).error(function(data) {
+            console.log('Error: ' + data);
+        });
+    };
+    $scope.getNotasCompartidasMe = function(){
+        $("#"+lastIdLateralSelected).removeClass('active');
+        $("#compartidasMeButton").addClass('active');
+        lastIdLateralSelected = "compartidasMeButton";
+        $http.get('/api/nota/compartidasMe', {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
+            $scope.notas = data;
+        }).error(function(data) {
+            console.log('Error: ' + data);
+        });
+    };
+
     $scope.getNotasEtiqueta = function(id){
         $("#"+lastIdLateralSelected).removeClass('active');
         $("#etiButton"+id).addClass('active');
@@ -101,19 +123,28 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
         $("#list"+lastIdSelected).removeClass('active');
         $("#list"+id).addClass('active');
         lastIdSelected = id;
-
         $http.get('/api/nota/'+id, {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data) {
             $scope.nota = data;
             simplemde.value(data.nota);
+            var pusher = new Pusher('40ef5d78852008526824', {
+                cluster: 'eu',
+                encrypted: true
+            });
+            pusher.subscribe(data._id).bind('notaUpdate', function(data) {
+                if($scope.nota._id == data._id) {
+                    $scope.nota = data;
+                    simplemde.value(data.nota);
+                }
+            });
             $('#tagsInput').tagsinput('removeAll');
             data.etiquetas.forEach(function (etiqueta) {
-                var result = etiquetas.filter(function( obj ) {
+                var result = etiquetas.filter(function (obj) {
                     return obj._id == etiqueta;
                 });
-                $('#tagsInput').tagsinput('add', result[0].nombre );
+                if(result.length > 0)
+                    $('#tagsInput').tagsinput('add', result[0].nombre);
             })
             $('#tagsInput').tagsinput('refresh');
-
         }).error(function(data) {
             console.log('Error: ' + data);
         });
@@ -132,27 +163,35 @@ var myApp = angular.module('myApp',[]).controller("myControllerContent",function
             fav = 1;
         var notaProcesada = simplemde.value().replace(/\r?\n/g, '\\r\\n');
         var etiquetasTemp = [];
-            $("#tagsInput").tagsinput('items').toString().split(",").forEach(function(etiqueta2){
+        if(lastIdLateralSelected!="compartidasMeButton") {
+            $("#tagsInput").tagsinput('items').toString().split(",").forEach(function (etiqueta2) {
                 var encontrado = false;
                 etiquetas.forEach(function (etiqueta) {
-                    if(etiqueta.nombre==etiqueta2.toString())
-                    {
+                    if (etiqueta.nombre == etiqueta2.toString()) {
                         encontrado = true;
                         etiquetasTemp.push(etiqueta._id)
                     }
                 });
-                if(!encontrado){
-                    $http.post('/api/etiqueta/insert', {"nombre": etiqueta2.toString()}, {headers: { 'Content-Type': 'application/json', 'Authorization': token }}).success(function(data2) {
+                if (!encontrado) {
+                    $http.post('/api/etiqueta/insert', {"nombre": etiqueta2.toString()}, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token
+                        }
+                    }).success(function (data2) {
                         etiquetasTemp.push(data2.toString())
                         putNota(notaProcesada, nota, fav, etiquetasTemp, true);
-                    }).error(function(data) {
+                    }).error(function (data) {
                         putNota(notaProcesada, nota, fav, etiquetasTemp, false);
                         console.log('Error: ' + data);
                     });
-                }else{
+                } else {
                     putNota(notaProcesada, nota, fav, etiquetasTemp, false);
                 }
             });
+        }else {
+            putNota(notaProcesada, nota, fav, etiquetasTemp, false);
+        }
     };
     $scope.crearNota = function () {
         var req = {

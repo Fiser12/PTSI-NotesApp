@@ -32,6 +32,8 @@ apiRoutes.post('/signup', UsersCtrl.signup);
 apiRoutes.post('/authenticate', UsersCtrl.authenticate);
 apiRoutes.get('/nota', passport.authenticate('jwt', { session: false}), NotaCtrl.notaList);
 apiRoutes.get('/nota/favoritas', passport.authenticate('jwt', { session: false}), NotaCtrl.notaListFav);
+apiRoutes.get('/nota/compartidas', passport.authenticate('jwt', { session: false}), NotaCtrl.notaListCompartidas);
+apiRoutes.get('/nota/compartidasMe', passport.authenticate('jwt', { session: false}), NotaCtrl.notaListCompartidasMe);
 apiRoutes.get('/nota/etiqueta/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaListEtiqueta);
 apiRoutes.post('/nota/create', passport.authenticate('jwt', { session: false}), NotaCtrl.notaCreate);
 apiRoutes.delete('/nota/delete/:id', passport.authenticate('jwt', { session: false}), NotaCtrl.notaRemove);

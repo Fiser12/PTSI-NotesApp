@@ -40,6 +40,53 @@ exports.notaList = function(req, res) {
         return res.status(403).send({success: false, msg: 'No token provided.'});
     }
 };
+exports.notaListCompartidas = function(req, res) {
+    var token = getToken(req.headers);
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
+            } else {
+                Nota.find({ user: user._id }, function(err, notas) {
+                    if (err) return console.error(err);
+                    notas = notas.filter(function (nota) {
+                        if (nota.usersLinked.length != 0) return true;
+                        else return false;
+                    });
+                    res.status(200).jsonp(notas);
+                });
+            }
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'No token provided.'});
+    }
+};
+exports.notaListCompartidasMe = function(req, res) {
+    var token = getToken(req.headers);
+    if (token) {
+        var decoded = jwt.decode(token, config.secret);
+        User.findOne({
+            name: decoded.name
+        }, function(err, user) {
+            if (err) throw err;
+            if (!user) {
+                return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
+            } else {
+                Nota.find({ usersLinked: user.name }, function(err, notas) {
+                    if (err) return console.error(err);
+                    res.status(200).jsonp(notas);
+                });
+            }
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'No token provided.'});
+    }
+};
+
 exports.notaListFav = function(req, res) {
     var token = getToken(req.headers);
     if (token) {
@@ -160,7 +207,7 @@ exports.notaUpdate = function(req, res) {
                 return res.status(403).send({success: false, msg: 'Authentication failed. User not found.'});
             } else {
                 Nota.findById(req.params.id, function(err, nota) {
-                    if(nota!=null&&(nota.user.equals(user._id)||nota.usersLinked.contains(user.name))) {
+                    if(nota!=null&&(nota.user.equals(user._id))) {
                         var comprobarEti = true;
                         if(req.body.hasOwnProperty("titulo")) nota.titulo = req.body.titulo;
                         if(req.body.hasOwnProperty("nota")) nota.nota = req.body.nota;
@@ -182,10 +229,23 @@ exports.notaUpdate = function(req, res) {
                                 PushServer.enviarNota(req.params.id, nota);
                                 res.status(200).jsonp(nota);
                             });
-                        }else{
+                        }
+                        else{
                             return res.status(403).send({success: false, msg: 'One of the tags doesn\' exit.'});
                         }
-                    }else{
+                    }else if(nota.usersLinked.contains(user.name)){
+                        if(req.body.hasOwnProperty("titulo")) nota.titulo = req.body.titulo;
+                        if(req.body.hasOwnProperty("nota")) nota.nota = req.body.nota;
+                        if(req.body.hasOwnProperty("location")) nota.location = req.body.location;
+                        if(req.body.hasOwnProperty("favorito")) nota.favorito = req.body.favorito;
+                        nota.updated_at = Date.now();
+                        nota.save(function (err) {
+                            if (err) return res.status(500).send(err.message)
+                            PushServer.enviarNota(req.params.id, nota);
+                            res.status(200).jsonp(nota);
+                        });
+                    }
+                    else{
                         return res.status(403).send({success: false, msg: 'Note doesn\'t exit.'});
                     }
                 });
